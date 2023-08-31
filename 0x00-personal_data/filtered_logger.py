@@ -9,14 +9,13 @@ def filter_datum(fields: List[str], redaction: str, message: str,
                  separator: str) -> str:
     """Filter data function"""
     for field in fields:
-        message = re.sub(rf"{field}=(.*?)\{separator}",
-                         f'{field}={redaction}{separator}', message)
+        replace = "{}={}{}".format(field, redaction, separator)
+        message = re.sub("{}=.*?{}".format(field, separator), replace, message)
     return message
 
 
 class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class
-        """
+    """ Redacting Formatter class"""
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
@@ -25,8 +24,10 @@ class RedactingFormatter(logging.Formatter):
     def __init__(self, fields: List[str]):
         """Constructor"""
         super(RedactingFormatter, self).__init__(self.FORMAT)
+        self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
         """Formater"""
         return filter_datum(self.fields, self.REDACTION,
-                            super().format(record), self.SEPARATOR)
+                            super(RedactingFormatter, self).format(record),
+                            self.SEPARATOR)
