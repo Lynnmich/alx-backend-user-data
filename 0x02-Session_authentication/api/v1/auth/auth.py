@@ -1,39 +1,39 @@
 #!/usr/bin/env python3
-"""Auth class"""
-
-from tabnanny import check
+""" Authorization module
+"""
+import re
+from typing import List, TypeVar
 from flask import request
-from typing import TypeVar, List
-from os import getenv
-User = TypeVar('User')
 
 
-class Auth:
-    """A class to manage the API authentication"""
-
+class Auth():
+    """ Authorization Class
+    """
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """returns False - path and excluded_paths"""
-        check = path
-        if path is None or excluded_paths is None or len(excluded_paths) == 0:
+        """ Method to define which routes don't need authentication
+        """
+        if path is None or excluded_paths is None:
             return True
-        if path[-1] != "/":
-            check += "/"
-        if check in excluded_paths or path in excluded_paths:
-            return False
+        for st in excluded_paths:
+            if path == st + '/' or path + '/' == st or path == st:
+                return False
+            pattern = re.compile(st)
+            res = pattern.match(path)
+            if res:
+                return False
         return True
 
     def authorization_header(self, request=None) -> str:
-        """returns None - request"""
+        """ Method to validate all requests to secure the API
+        """
         if request is None:
             return None
-        return request.headers.get("Authorization")
+        try:
+            st = request.headers['Authorization']
+        except KeyError:
+            st = None
+        return st
 
-    def current_user(self, request=None) -> User:
-        """returns None - request"""
+    def current_user(self, request=None) -> TypeVar('User'):
+        """ Temporarily Return None """
         return None
-
-    def session_cookie(self, request=None):
-        """returns a cookie from a request"""
-        if request:
-            session_name = getenv("SESSION_NAME")
-            return request.cookie.get(session_name, None)
