@@ -31,8 +31,18 @@ class DB:
         return self.__session
 
     def add_user(self, email, hashed_password: str) -> User:
-        """Add user to the DB"""
+        """Method that adds a user to the DB"""
         user = User(email=email, hashed_password=hashed_password)
         self._session.add(user)
         self._session.commit()
         return user
+
+        def find_user_by(self, **kwargs) -> User:
+        """find_user_by method"""
+        if not kwargs or any(x not in VALID_FIELDS for x in kwargs):
+            raise InvalidRequestError
+        session = self._session
+        try:
+            return session.query(User).filter_by(**kwargs).one()
+        except Exception:
+            raise NoResultFound
