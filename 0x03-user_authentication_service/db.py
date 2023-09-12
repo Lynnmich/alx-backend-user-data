@@ -37,7 +37,7 @@ class DB:
         self._session.commit()
         return user
 
-        def find_user_by(self, **kwargs) -> User:
+    def find_user_by(self, **kwargs) -> User:
         """find_user_by method"""
         if not kwargs or any(x not in VALID_FIELDS for x in kwargs):
             raise InvalidRequestError
